@@ -1,24 +1,32 @@
 import logo from './logo.svg';
 import './App.css';
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import NavBar from './components/NavBar.tsx';
+import Products from "./Page/Products.tsx";
+import Product from "./Page/features/product/Product.tsx"
+import Cart from "./Page/Cart.tsx";
+import store from "./reducers/store.ts";
+import { Provider } from 'react-redux';
+import { Suspense, lazy } from 'react';
+const CartLazy = lazy(() => import("./Page/Cart.tsx"))
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Provider store={store}>
+      <div className="App">
+        <BrowserRouter>
+          <NavBar />
+          <Suspense fallback={<div>Loading...</div>}>
+            <Routes>
+              <Route path="/" element={<Products />} />
+              <Route path="/products" element={<Products />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/products/:productId" element={<Product />} />
+            </Routes>
+          </Suspense>
+        </BrowserRouter>
+      </div>
+    </Provider>
   );
 }
 

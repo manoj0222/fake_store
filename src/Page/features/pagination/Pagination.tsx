@@ -5,8 +5,8 @@ import { setPage } from "../product/productSlice.ts";
 
 const Pagination: React.FC = () => {
   const dispatch = useDispatch();
-  const { page, allProducts, itemsPerPage } = useSelector((state: RootState) => state.product);
-  const totalPages = Math.ceil(allProducts.length / itemsPerPage);
+  const { page, filteredProducts, itemsPerPage } = useSelector((state: RootState) => state.product);
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
 
   const handlePageChange = (newPage: number) => {
     dispatch(setPage(newPage));

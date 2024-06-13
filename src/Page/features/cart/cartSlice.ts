@@ -1,16 +1,15 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import CartType from "../../../interfaces/CartType";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
-import { act } from "react";
-import ProductType from "../../../interfaces/ProductType";
-import { PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../../../reducers/store";
+import { toast } from "react-toastify";
+import CartType from "../../../interfaces/CartType";
 
 interface CartState {
   allCartProducts: CartType[];
   cartproducts: CartType[];
   isLoading: boolean;
-  error: Error;
+  error: string | null;
+  total: number;
 }
 
 const initialState: CartState = {
@@ -18,50 +17,79 @@ const initialState: CartState = {
   isLoading: false,
   allCartProducts: [],
   error: null,
+  total: 0,
+};
+
+const calculateTotal = (cartproducts: CartType[]) => {
+  return cartproducts.reduce((total, product) => total + product.price * product.quantity, 0);
 };
 
 const CartSlice = createSlice({
   name: "cart",
   initialState,
-  reducers: {},
+  reducers: {
+    increase: (state) => {
+      toast.info("Qty increased");
+    },
+    decrease: (state) => {
+      toast.warn("Qty decreased");
+    },
+  },
   extraReducers(builder) {
     builder
-      .addCase(fetchAllCartProducts.pending, (state, action) => {
+      .addCase(fetchAllCartProducts.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(fetchAllCartProducts.fulfilled, (state, action) => {
+      .addCase(fetchAllCartProducts.fulfilled, (state, action: PayloadAction<CartType[]>) => {
         state.isLoading = false;
         state.allCartProducts = action.payload;
         state.cartproducts = action.payload;
+        state.total = calculateTotal(state.cartproducts);
       })
-      .addCase(fetchAllCartProducts.rejected, (state, action) => {
+      .addCase(fetchAllCartProducts.rejected, (state, action: PayloadAction<string | undefined>) => {
         state.isLoading = false;
-        state.error = action.payload as Error;
+        state.error = action.payload ?? "Error fetching cart products";
       })
       .addCase(findProductById.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(
-        findProductById.fulfilled,
-        (state, action: PayloadAction<CartType>) => {
-          state.isLoading = false;
-          state.cartproducts.push(action.payload);
-        }
-      )
-      .addCase(findProductById.rejected, (state, action) => {
+      .addCase(findProductById.fulfilled, (state, action: PayloadAction<CartType>) => {
         state.isLoading = false;
-        state.error = action.payload as Error;
+        state.cartproducts.push(action.payload);
+        state.total = calculateTotal(state.cartproducts);
+      })
+      .addCase(findProductById.rejected, (state, action: PayloadAction<string | undefined>) => {
+        state.isLoading = false;
+        state.error = action.payload ?? "Error finding product";
+      })
+      .addCase(increaseQuantity.fulfilled, (state, action: PayloadAction<CartType>) => {
+        const product = state.cartproducts.find(item => item.id === action.payload.id);
+        if (product) {
+          product.quantity = action.payload.quantity;
+          state.total = calculateTotal(state.cartproducts);
+        }
+      })
+      .addCase(decreaseQuantity.fulfilled, (state, action: PayloadAction<CartType>) => {
+        const product = state.cartproducts.find(item => item.id === action.payload.id);
+        if (product) {
+          product.quantity = action.payload.quantity;
+          state.total = calculateTotal(state.cartproducts);
+        }
+      })
+      .addCase(removeItem.fulfilled, (state, action: PayloadAction<number>) => {
+        state.cartproducts = state.cartproducts.filter(item => item.id !== action.payload);
+        state.total = calculateTotal(state.cartproducts);
       });
   },
 });
 
 export const fetchAllCartProducts = createAsyncThunk(
-  "/cart/products",
+  "cart/fetchAllCartProducts",
   async (_, { rejectWithValue }) => {
     try {
       const data = await localStorage.getItem("cartitems");
       if (!data) {
-        throw new Error("items not found in localStorage");
+        throw new Error("Items not found in localStorage");
       }
       return JSON.parse(data) as CartType[];
     } catch (error) {
@@ -71,12 +99,12 @@ export const fetchAllCartProducts = createAsyncThunk(
 );
 
 export const findProductById = createAsyncThunk(
-  "/cart/productId",
+  "cart/findProductById",
   async (productId: number, { rejectWithValue }) => {
     try {
       const data = await localStorage.getItem("cartitems");
       if (!data) {
-        throw new Error("items not found in localStorage");
+        throw new Error("Items not found in localStorage");
       }
       const products = JSON.parse(data) as CartType[];
       const product = products.find((product) => product.id === productId);
@@ -91,7 +119,7 @@ export const findProductById = createAsyncThunk(
 );
 
 export const addToCart = createAsyncThunk(
-  "/cart/product",
+  "cart/addToCart",
   async (product: CartType, { rejectWithValue, getState }) => {
     try {
       const state = getState() as RootState;
@@ -139,7 +167,7 @@ export const increaseQuantity = createAsyncThunk(
     try {
       const data = localStorage.getItem("cartitems");
       if (!data) {
-        throw new Error("items not found in localStorage");
+        throw new Error("Items not found in localStorage");
       }
 
       const cartItems = JSON.parse(data) as CartType[];
@@ -164,7 +192,7 @@ export const decreaseQuantity = createAsyncThunk(
     try {
       const data = localStorage.getItem("cartitems");
       if (!data) {
-        throw new Error("items not found in localStorage");
+        throw new Error("Items not found in localStorage");
       }
 
       const cartItems = JSON.parse(data) as CartType[];
@@ -186,5 +214,26 @@ export const decreaseQuantity = createAsyncThunk(
     }
   }
 );
+
+export const removeItem = createAsyncThunk(
+  "cart/removeItem",
+  async (productId: number, { rejectWithValue }) => {
+    try {
+      const data = localStorage.getItem("cartitems");
+      if (!data) {
+        throw new Error("Items not found in localStorage");
+      }
+
+      const cartItems = JSON.parse(data) as CartType[];
+      const updatedCartItems = cartItems.filter((item) => item.id !== productId);
+      localStorage.setItem("cartitems", JSON.stringify(updatedCartItems));
+      return productId;
+    } catch (error) {
+      return rejectWithValue((error as Error).message);
+    }
+  }
+);
+
+export const { increase, decrease } = CartSlice.actions;
 
 export default CartSlice.reducer;

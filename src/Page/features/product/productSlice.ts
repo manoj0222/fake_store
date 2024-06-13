@@ -3,6 +3,7 @@ import axios from "axios";
 import { act } from "react";
 import ProductType from "../../../interfaces/ProductType";
 import { RootState } from "../../../reducers/store";
+import { toast } from "react-toastify";
 
 interface ProductsState {
   allProducts: ProductType[];
@@ -34,6 +35,9 @@ const productSlice = createSlice({
       const end = start + state.itemsPerPage;
       state.products = state.allProducts.slice(start, end);
     },
+    onsucess:(state)=>{
+      toast.success("Added Cart");
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -87,6 +91,6 @@ export const getProductById = createAsyncThunk("products/getProductById",async(p
 export const selectProducts = (state: RootState) => state.product;
 
 
-export const { setPage } = productSlice.actions;
+export const { setPage,onsucess } = productSlice.actions;
 
 export default productSlice.reducer;

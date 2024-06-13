@@ -1,20 +1,23 @@
-import React, { useCallback } from "react";
+import React, { useCallback,useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   fetchAllCartProducts,
   increaseQuantity,
   decreaseQuantity,
-  removeItem
+  removeItem,
 } from "./features/cart/cartSlice.ts";
 import useFetch from "../hooks/useFecth.ts";
 import { AppDispatch, RootState } from "../reducers/store.ts";
 import { ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import UserfeedbackModal from "./features/Modals/UserfeedbackModal.tsx";
 
 export default function Cart() {
- const navigate = useNavigate()
+  const navigate = useNavigate();
+  const [showModal,setShowModal]=useState(false);
+  const [open, setOpen] = useState(true)
 
-  useFetch(fetchAllCartProducts,[]);
+  useFetch(fetchAllCartProducts, []);
   const { cartproducts, isLoading, error, total } = useSelector(
     (state: RootState) => state.cart
   );
@@ -32,12 +35,16 @@ export default function Cart() {
     dispatch(removeItem(Number(productId)));
   };
 
-  const handleonClickShopping =()=>{
-    navigate("/products")
-  }
+  const handleonClickShopping = () => {
+    navigate("/products");
+  };
 
-  const memoizedhandleonClickShopping = useCallback(handleonClickShopping,[]);
-  
+  const memoizedhandleonClickShopping = useCallback(handleonClickShopping, []);
+
+  const handleCheckout =()=>{
+    setOpen(true)
+    setShowModal(pre=>!pre);
+  }
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -46,16 +53,19 @@ export default function Cart() {
     return <div>Error: {error}</div>;
   }
 
-  return (
+  return cartproducts.length > 0 ? (
     <div className="flex justify-center items-center">
       <div className="lg:w-1/2 sm:w-full p-2 mt-3">
-        <div className="border-4">
-          <div className="py-1 flex sm:flex-col">
+        <div className="border">
+          <div className="flex sm:flex-col">
             <div className="border">
               <div className="flow-root">
                 <ul role="list" className="-my-6 divide-y divide-gray-200">
                   {cartproducts.map((product) => (
-                    <li key={product.id} className="flex py-6 sm:flex-col flex-wrap lg:flex-row">
+                    <li
+                      key={product.id}
+                      className="flex py-6 sm:flex-col flex-wrap lg:flex-row"
+                    >
                       <div className="lg:w-1/3 sm:w-full rounded-md border border-gray-200 sm:flex-1">
                         <img
                           src={product.image}
@@ -110,18 +120,18 @@ export default function Cart() {
               <p>Subtotal</p>
               <p>${total.toFixed(2)}</p>
             </div>
-            <p className="mt-0.5 text-sm text-gray-500">
+            <p className="mt-3 text-sm text-gray-500 text-start">
               Shipping and taxes calculated at checkout.
             </p>
-            <div className="mt-6">
-              <a
-                href="#"
+            <div className="mt-6 flex justify-end ">
+              <button
                 className="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
+                onClick={handleCheckout}
               >
                 Checkout
-              </a>
+              </button>
             </div>
-            <div className="mt-6 flex justify-center text-center text-sm text-gray-500">
+            <div className="m-3 flex justify-center text-center text-sm text-gray-500">
               <p>
                 or{" "}
                 <button
@@ -136,8 +146,15 @@ export default function Cart() {
             </div>
           </div>
         </div>
-      </div> 
-      <ToastContainer autoClose={2000}/>
+      </div>
+      <ToastContainer autoClose={2000} />
+      {showModal&&<UserfeedbackModal open={open} setOpen={setOpen}/>}
     </div>
+  ) : (
+    <section className="flex items-center justify-center">
+      <h1 className="text-xl font-bold mt-22 tracking-tight text-gray-900 sm:text-6xl">
+        Cart is Empty added something
+      </h1>
+    </section>
   );
 }

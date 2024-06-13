@@ -1,8 +1,8 @@
-import React, { useEffect, useMemo,useState} from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../reducers/store.ts";
-import { getProductById,onsucess } from "./productSlice.ts";
+import { getProductById, onsucess } from "./productSlice.ts";
 import { StarIcon } from "@heroicons/react/20/solid";
 import { PiTagFill } from "react-icons/pi";
 import { AppDispatch } from "../../../reducers/store.ts";
@@ -11,8 +11,7 @@ import { addToCart } from "../cart/cartSlice.ts";
 import CartType from "../../../interfaces/CartType.ts";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-
+import Search from "../search/search.tsx";
 
 const classNames = (
   ...classes: (string | undefined | null | false)[]
@@ -24,7 +23,6 @@ const ProductDetails: React.FC = () => {
   // Extract productId from the URL parameters
   const { productId } = useParams<{ productId: string }>();
   const dispatch = useDispatch<AppDispatch>();
-
 
   const [isAddingToCart, setIsAddingToCart] = useState(false);
 
@@ -43,8 +41,13 @@ const ProductDetails: React.FC = () => {
     }
   }, [dispatch, productId]);
 
-  const handleAddToCart = (id:number,title:string,quantity:number= 1,price:number,image:string): void => {
-
+  const handleAddToCart = (
+    id: number,
+    title: string,
+    quantity: number = 1,
+    price: number,
+    image: string
+  ): void => {
     let product: CartType = {
       id,
       title,
@@ -52,10 +55,11 @@ const ProductDetails: React.FC = () => {
       price,
       image,
     };
-   dispatch(addToCart(product));
-   setIsAddingToCart(true);
-   dispatch(onsucess())
+    dispatch(addToCart(product));
+    setIsAddingToCart(true);
+    dispatch(onsucess());
   };
+
 
   // Render loading state
   if (isLoading || isSelectedProduct == null) {
@@ -70,8 +74,16 @@ const ProductDetails: React.FC = () => {
   // Render product details
   return (
     <div className="bg-white m-6 flex justify-center cursor-pointer hover:shadow-lg">
-      <div className="border-2 flex lg:flex-row md:flex-col gap-4 p-2">
-        <div className="w-1/2 h-full">
+      <div className="border-2 
+      flex 
+      lg:flex-row flex-nowrap
+      md:flex-col scrollable-smooth
+      sm:flex-col flex-wrap h-full
+      bg-black-200 gap-4 p-2">
+        <div className="
+        lg:w-1/2 h-full 
+        md:w-1/2 h-full self-center
+        sm:w-1/2 h-1/2">
           <img
             src={isSelectedProduct.image}
             alt="productimage"
@@ -79,15 +91,16 @@ const ProductDetails: React.FC = () => {
           />
         </div>
         <div className="p-2 w-full">
-          <h1 className="text-start text-xl font-bold tracking-tight text-gray-900 mb:4 sm:text-3xl">
+          <h1 className="text-start text-xl font-bold tracking-tight text-gray-900 mb:4 
+          sm:text-3xl">
             {isSelectedProduct.title}
           </h1>
-          <div className="text-start flex flex-col">
-            <h3 className="text-start font-semibold mt-4 text-xl">
+          <div className="text-start flex flex-col ">
+            <h3 className="text-start font-semibold mt-4 md:text-3xl lg:text-xl sm:text-4xl">
               Description
             </h3>
-            <div className="space-y-6 w-full">
-              <p className="text-base text-gray-900">
+            <div className="space-y-6 w-full ">
+              <p className="text-base text-gray-900 md:text-xl lg:text-l sm:text-3xl">
                 {isSelectedProduct.description}
               </p>
             </div>
@@ -142,16 +155,22 @@ const ProductDetails: React.FC = () => {
                 rounded-md border border-transparent bg-indigo-600 
                 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 
                 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                onClick={()=>{handleAddToCart(isSelectedProduct.id,isSelectedProduct.title,1,
+              onClick={() => {
+                handleAddToCart(
+                  isSelectedProduct.id,
+                  isSelectedProduct.title,
+                  1,
                   Number(isSelectedProduct.price),
-                  isSelectedProduct.image)}}
+                  isSelectedProduct.image
+                );
+              }}
             >
               {isAddingToCart ? "Increase the Quantity" : "Add to Cart"}
             </button>
           </div>
         </div>
       </div>
-      <ToastContainer autoClose={2000}/>
+      <ToastContainer autoClose={2000} />
     </div>
   );
 };

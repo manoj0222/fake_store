@@ -1,0 +1,19 @@
+@media 
+only screen and (max-width: 760px),(min-device-width: 768px) and (max-device-width: 904px){
+   .container{
+    width:100%;
+    
+   } 
+  .searchcontainer{
+     width:90%; 
+     display: flex;
+     flex-direction: column;
+     justify-items: center;
+     align-items: center;
+  }
+  .category_container{
+    width:54%;
+    margin-top: 1rem;
+  }
+  
+}

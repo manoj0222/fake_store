@@ -2,13 +2,17 @@ import React, { useEffect, useMemo,useState} from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../reducers/store.ts";
-import { getProductById } from "./productSlice.ts";
+import { getProductById,onsucess } from "./productSlice.ts";
 import { StarIcon } from "@heroicons/react/20/solid";
 import { PiTagFill } from "react-icons/pi";
 import { AppDispatch } from "../../../reducers/store.ts";
 import { BiTagAlt } from "react-icons/bi";
 import { addToCart } from "../cart/cartSlice.ts";
 import CartType from "../../../interfaces/CartType.ts";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+
 
 const classNames = (
   ...classes: (string | undefined | null | false)[]
@@ -50,6 +54,7 @@ const ProductDetails: React.FC = () => {
     };
    dispatch(addToCart(product));
    setIsAddingToCart(true);
+   dispatch(onsucess())
   };
 
   // Render loading state
@@ -140,13 +145,13 @@ const ProductDetails: React.FC = () => {
                 onClick={()=>{handleAddToCart(isSelectedProduct.id,isSelectedProduct.title,1,
                   Number(isSelectedProduct.price),
                   isSelectedProduct.image)}}
-                  disabled={isAddingToCart}
             >
-              {isAddingToCart ? "Adding to Cart..." : "Add to Cart"}
+              {isAddingToCart ? "Increase the Quantity" : "Add to Cart"}
             </button>
           </div>
         </div>
       </div>
+      <ToastContainer autoClose={2000}/>
     </div>
   );
 };

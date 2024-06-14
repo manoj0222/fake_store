@@ -5,7 +5,7 @@ type ActionCreator = (...args: any[]) => any;
 
 const useFetch = (actionCreator: ActionCreator,params?: any, dependencies: any[] = []) => {
   const dispatch = useDispatch();
-  console.log(actionCreator)
+  // console.log(actionCreator)
   useEffect(() => {
     console.log(params)
     if (params) {

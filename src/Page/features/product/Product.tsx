@@ -11,7 +11,6 @@ import { addToCart } from "../cart/cartSlice.ts";
 import CartType from "../../../interfaces/CartType.ts";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Search from "../search/search.tsx";
 
 const classNames = (
   ...classes: (string | undefined | null | false)[]

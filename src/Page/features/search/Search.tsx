@@ -47,7 +47,7 @@ const Search: React.FC<SearchProps> = ({
           id="currency"
           name="currency"
           className="
-          lg:w-1/3
+          lg:w-1/4
           category_container
           rounded-md  
           py-2 pl-1 text-gray-700 border-2 border-gray-300 

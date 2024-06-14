@@ -1,9 +1,14 @@
-import { useState } from 'react'
-import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from '@headlessui/react'
-import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
+import { useState } from "react";
+import {
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+  Transition,
+  TransitionChild,
+} from "@headlessui/react";
 
-export default function UserfeedbackModal({open,setOpen}) {
 
+export default function UserfeedbackModal({ open,setOpen,setText }) {
   return (
     <Transition show={open}>
       <Dialog className="relative z-10" onClose={setOpen}>
@@ -17,7 +22,6 @@ export default function UserfeedbackModal({open,setOpen}) {
         >
           <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
         </TransitionChild>
-
         <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
           <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
             <TransitionChild
@@ -28,17 +32,28 @@ export default function UserfeedbackModal({open,setOpen}) {
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <DialogPanel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-                <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
-                  <div className="sm:flex sm:items-start">
-                    <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-                      <DialogTitle as="h2" className="text-base font-semibold leading-6 text-gray-900">
-                        Feedback 
+              <DialogPanel
+                className="relative transform overflow-hidden 
+              rounded-lg bg-white text-left shadow-xl 
+              transition-all sm:my-8 sm:w-full sm:max-w-lg"
+              >
+                <div className="bg-white px-2 pb-4 pt-5 sm:p-3">
+                  <div className="sm:flex sm:items-start w-full flex-col">
+                    <div className="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                      <DialogTitle
+                        as="h2"
+                        className="text-base font-semibold leading-6 text-gray-900 "
+                      >
+                        Feedback
                       </DialogTitle>
-                      <div className="mt-2">
-                        <textarea className="text-sm text-gray-500">
-                        </textarea>
-                      </div>
+                    </div>
+                    <div className="mt-1 w-full">
+                      <textarea className="text-sm text-black-500 w-full
+                       py-4
+                       px-2
+                      outline-none border-2 rounded-2l"
+                      onChange={(e)=>{setText(e.target.value)}}
+                      ></textarea>
                     </div>
                   </div>
                 </div>
@@ -58,5 +73,5 @@ export default function UserfeedbackModal({open,setOpen}) {
         </div>
       </Dialog>
     </Transition>
-  )
+  );
 }

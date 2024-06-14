@@ -4,6 +4,8 @@ import { act } from "react";
 import ProductType from "../../../interfaces/ProductType";
 import { RootState } from "../../../reducers/store";
 import { toast } from "react-toastify";
+import { sortBy, sortByRatings } from "../../../util/customSort.ts";
+import { FaceSmileIcon } from "@heroicons/react/24/outline";
 
 interface ProductsState {
   allProducts: ProductType[];
@@ -16,6 +18,10 @@ interface ProductsState {
   filteredProducts: ProductType[];
   searchText: string | null;
   selectedCategory: string | null;
+  unSortedProducts: ProductType[] | null;
+  sortBypriceHightoLowfilterFlag: boolean;
+  sortBypriceLowtoHighFlag: boolean;
+  sortByratingFlag: boolean;
 }
 
 const initialState: ProductsState = {
@@ -29,6 +35,10 @@ const initialState: ProductsState = {
   filteredProducts: [],
   searchText: null,
   selectedCategory: null,
+  unSortedProducts: [],
+  sortBypriceHightoLowfilterFlag: false,
+  sortBypriceLowtoHighFlag: false,
+  sortByratingFlag: false,
 };
 
 const productSlice = createSlice({
@@ -44,37 +54,119 @@ const productSlice = createSlice({
     onsucess: (state) => {
       toast.success("Added Cart");
     },
-    filterProducts: (state, action: PayloadAction<{searchText: string; category: string }>) => {
+    filterProducts: (
+      state,
+      action: PayloadAction<{ searchText: string; category: string }>
+    ) => {
       state.searchText = action.payload.searchText;
-      state.selectedCategory=action.payload.category;
+      state.selectedCategory = action.payload.category;
       state.page = 1;
-      if(state.searchText!==""&&state.selectedCategory!==""){
-        state.filteredProducts = state.allProducts.filter((product) =>
-          product.title.toLowerCase().includes(state.searchText.toLowerCase())||product.description.toLowerCase().includes(state.searchText.toLowerCase())
+      if (state.searchText !== "" && state.selectedCategory !== "") {
+        state.filteredProducts = state.allProducts.filter(
+          (product) =>
+            product.title
+              .toLowerCase()
+              .includes(state.searchText.toLowerCase()) ||
+            product.description
+              .toLowerCase()
+              .includes(state.searchText.toLowerCase())
         );
         state.filteredProducts = state.filteredProducts.filter((product) =>
-          product.category.toLowerCase().includes(state.selectedCategory.toLowerCase())
+          product.category
+            .toLowerCase()
+            .includes(state.selectedCategory.toLowerCase())
         );
-      }
-      else if(state.searchText!==""&&state.selectedCategory===""){
+        state.unSortedProducts = state.filteredProducts;
+      } else if (state.searchText !== "" && state.selectedCategory === "") {
+        state.filteredProducts = state.allProducts.filter(
+          (product) =>
+            product.title
+              .toLowerCase()
+              .includes(state.searchText.toLowerCase()) ||
+            product.description
+              .toLowerCase()
+              .includes(state.searchText.toLowerCase())
+        );
+        state.unSortedProducts = state.filteredProducts;
+      } else if (state.selectedCategory !== "" && state.searchText === "") {
         state.filteredProducts = state.allProducts.filter((product) =>
-          product.title.toLowerCase().includes(state.searchText.toLowerCase())||product.description.toLowerCase().includes(state.searchText.toLowerCase())
+          product.category
+            .toLowerCase()
+            .includes(state.selectedCategory.toLowerCase())
         );
-      }
-      else if(state.selectedCategory!==""&&state.searchText ===""){
-        state.filteredProducts = state.allProducts.filter((product) =>
-          product.category.toLowerCase().includes(state.selectedCategory.toLowerCase())
-        );
-      }
-      else{
+        state.unSortedProducts = state.filteredProducts;
+      } else {
         state.filteredProducts = state.allProducts;
+        state.unSortedProducts = state.filteredProducts;
       }
 
       const start = (state.page - 1) * state.itemsPerPage;
       const end = start + state.itemsPerPage;
       state.products = state.filteredProducts.slice(start, end);
-    }
+    },
+    sortByLowToHigh: (state) => {
+      state.sortBypriceLowtoHighFlag = !state.sortBypriceLowtoHighFlag;
+      if (state.sortBypriceLowtoHighFlag) {
+        state.filteredProducts = state.filteredProducts.sort(
+          sortBy("price", -1)
+        );
+      } else if (state.sortByratingFlag) {
+        state.filteredProducts = state.filteredProducts.sort(
+          sortByRatings("rating")
+        );
+      } else {
+        console.log("Inside the Block");
+        state.filteredProducts = state.unSortedProducts;
+      }
+      const start = (state.page - 1) * state.itemsPerPage;
+      const end = start + state.itemsPerPage;
+      state.products = state.filteredProducts.slice(start, end);
+      state.sortBypriceHightoLowfilterFlag = false;
+    },
 
+    sortByHighToLow: (state) => {
+      state.sortBypriceHightoLowfilterFlag =
+        !state.sortBypriceHightoLowfilterFlag;
+      if (state.sortBypriceHightoLowfilterFlag) {
+        state.filteredProducts = state.filteredProducts.sort(
+          sortBy("price", 1)
+        ); // Assuming `sortBy` handles the sort order with a second parameter
+      } else if (state.sortByratingFlag) {
+        // Assuming there's a flag for sorting by rating
+        state.filteredProducts = state.filteredProducts.sort(
+          sortByRatings("rating")
+        );
+      } else {
+        console.log("Inside this");
+        state.filteredProducts = state.unSortedProducts;
+      }
+      const start = (state.page - 1) * state.itemsPerPage;
+      const end = start + state.itemsPerPage;
+      state.products = state.filteredProducts.slice(start, end);
+      state.sortBypriceLowtoHighFlag = false;
+    },
+    sortByRating: (state) => {
+      state.sortByratingFlag = !state.sortByratingFlag;
+      if (state.sortByratingFlag) {
+        state.filteredProducts = state.filteredProducts
+          .sort(sortByRatings("rating"))
+          .map((e) => e);
+      } else {
+        state.filteredProducts = state.unSortedProducts;
+      }
+      const start = (state.page - 1) * state.itemsPerPage;
+      const end = start + state.itemsPerPage;
+      state.products = state.filteredProducts.slice(start, end);
+    },
+    resetAll: (state) => {
+      state.filteredProducts = state.unSortedProducts;
+      const start = (state.page - 1) * state.itemsPerPage;
+      const end = start + state.itemsPerPage;
+      state.products = state.filteredProducts.slice(start, end);
+      state.sortBypriceHightoLowfilterFlag = false;
+      state.sortBypriceLowtoHighFlag = false;
+      state.sortByratingFlag = false;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -84,7 +176,8 @@ const productSlice = createSlice({
       .addCase(getProducts.fulfilled, (state, action) => {
         state.isLoading = false;
         state.allProducts = action.payload;
-        state.filteredProducts=action.payload;
+        state.filteredProducts = action.payload;
+        state.unSortedProducts = action.payload;
         const start = (state.page - 1) * state.itemsPerPage;
         const end = start + state.itemsPerPage;
         state.products = state.allProducts.slice(start, end);
@@ -133,6 +226,14 @@ export const getProductById = createAsyncThunk(
 
 export const selectProducts = (state: RootState) => state.product;
 
-export const { setPage, onsucess,filterProducts} = productSlice.actions;
+export const {
+  setPage,
+  onsucess,
+  filterProducts,
+  sortByLowToHigh,
+  sortByHighToLow,
+  resetAll,
+  sortByRating,
+} = productSlice.actions;
 
 export default productSlice.reducer;

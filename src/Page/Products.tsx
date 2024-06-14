@@ -6,16 +6,18 @@ import {
   selectProducts,
   filterProducts,
 } from "./features/product/productSlice.ts";
-import ProductType from "../interfaces/ProductType.ts";
 import Pagination from "./features/pagination/Pagination.tsx";
 import { Link, useNavigate } from "react-router-dom";
 import Search from "./features/search/Search.tsx";
 import useFetch from "../hooks/useFecth.ts";
 import "../styles/product.css";
 import useMemorizedCategories from "../hooks/useMemorizedCategories.tsx";
+import SlideOver from "./features/Modals/SlideOver.tsx";
+import { IoFilterSharp } from "react-icons/io5";
 
 const Products: React.FC = () => {
   const [category, setCategory] = useState<string>("");
+  const [sortFilter,setSortFilter]=useState<boolean>(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   useFetch(getProducts, []);
@@ -49,6 +51,22 @@ const Products: React.FC = () => {
           categories={memorizedcategory}
           handlecatgeory={handlecatgeory}
         />
+       
+      </section>
+      <section className=" 
+      flex
+      lg:ml-12 
+      lg:justify-start
+      sm:ml-4 justify-center
+      md:ml-6 justify-start
+      gap-2 mt-2
+      cursor-pointer
+      border 
+       
+       items-center" onClick={()=>{setSortFilter(!sortFilter)}}>
+        <IoFilterSharp className="lg:text-3xl md:text-3xl sm:text-xl"/>
+        <p className="lg:text-2xl md:text-3xl sm:text-9xl">Filter</p>
+        <SlideOver open={sortFilter} setOpen={setSortFilter}/>
       </section>
       <div className="px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8 mx-auto">
         <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:gap-x-8">

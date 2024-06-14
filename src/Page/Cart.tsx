@@ -1,4 +1,4 @@
-import React, { useCallback,useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   fetchAllCartProducts,
@@ -11,11 +11,13 @@ import { AppDispatch, RootState } from "../reducers/store.ts";
 import { ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import UserfeedbackModal from "./features/Modals/UserfeedbackModal.tsx";
+import { saveFeedBack } from "./features/feeback/feedbackSlice.ts";
 
 export default function Cart() {
   const navigate = useNavigate();
-  const [showModal,setShowModal]=useState(false);
-  const [open, setOpen] = useState(true)
+  const [showModal, setShowModal] = useState(false);
+  const [open, setOpen] = useState(true);
+  const [feedbacktext, setfeedback] = useState<string>("");
 
   useFetch(fetchAllCartProducts, []);
   const { cartproducts, isLoading, error, total } = useSelector(
@@ -35,16 +37,24 @@ export default function Cart() {
     dispatch(removeItem(Number(productId)));
   };
 
-  const handleonClickShopping = () => {
+  const memoizedhandleonClickShopping = useCallback(() => {
     navigate("/products");
+  }, []);
+
+  const handleCheckout = () => {
+    setOpen(true);
+    setShowModal((pre) => !pre);
   };
 
-  const memoizedhandleonClickShopping = useCallback(handleonClickShopping, []);
+  const handleuserFeedback = () => {
+    dispatch(saveFeedBack({ description: feedbacktext, experience: 0 }));
+    setOpen(false);
+    memoizedhandleonClickShopping();
+  };
 
-  const handleCheckout =()=>{
-    setOpen(true)
-    setShowModal(pre=>!pre);
-  }
+  const handelfeedbackText = (value) => {
+    setfeedback(value);
+  };
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -148,7 +158,13 @@ export default function Cart() {
         </div>
       </div>
       <ToastContainer autoClose={2000} />
-      {showModal&&<UserfeedbackModal open={open} setOpen={setOpen}/>}
+      {showModal && (
+        <UserfeedbackModal
+          open={open}
+          setOpen={handleuserFeedback}
+          setText={handelfeedbackText}
+        />
+      )}
     </div>
   ) : (
     <section className="flex items-center justify-center">

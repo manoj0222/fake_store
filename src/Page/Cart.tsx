@@ -1,17 +1,14 @@
-import React, { useCallback, useState } from "react";
+import React, { Suspense, useCallback, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  fetchAllCartProducts,
-  increaseQuantity,
-  decreaseQuantity,
-  removeItem,
-} from "./features/cart/cartSlice.ts";
+import {fetchAllCartProducts,increaseQuantity,decreaseQuantity, removeItem,} from "./features/cart/cartSlice.ts";
 import useFetch from "../hooks/useFecth.ts";
 import { AppDispatch, RootState } from "../reducers/store.ts";
 import { ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import UserfeedbackModal from "./features/Modals/UserfeedbackModal.tsx";
 import { saveFeedBack } from "./features/feeback/feedbackSlice.ts";
+import CartIsEmpty from "../components/CartIsEmpty.tsx";
+
+const LazyUserFeedBackModal = React.lazy(() => import("./features/Modals/UserfeedbackModal.tsx"));
 
 export default function Cart() {
   const navigate = useNavigate();
@@ -157,20 +154,20 @@ export default function Cart() {
           </div>
         </div>
       </div>
-      <ToastContainer autoClose={2000} />
+      <ToastContainer autoClose={1800} />
       {showModal && (
-        <UserfeedbackModal
-          open={open}
-          setOpen={handleuserFeedback}
-          setText={handelfeedbackText}
-        />
+        <Suspense fallback={<div>Loading...</div>}>
+          <LazyUserFeedBackModal
+            open={open}
+            setOpen={handleuserFeedback}
+            setText={handelfeedbackText}
+          />
+        </Suspense>
       )}
     </div>
   ) : (
     <section className="flex items-center justify-center">
-      <h1 className="text-xl font-bold mt-22 tracking-tight text-gray-900 sm:text-6xl">
-        Cart is Empty added something
-      </h1>
+      <CartIsEmpty message={"Cart is Empty added something"}/>
     </section>
   );
 }

@@ -3,14 +3,8 @@ import axios from "axios";
 import { RootState } from "../../../reducers/store";
 import { toast } from "react-toastify";
 import CartType from "../../../interfaces/CartType";
+import CartState from "../../../interfaces/CartState";
 
-interface CartState {
-  allCartProducts: CartType[];
-  cartproducts: CartType[];
-  isLoading: boolean;
-  error: string | null;
-  total: number;
-}
 
 const initialState: CartState = {
   cartproducts: [],
@@ -234,6 +228,6 @@ export const removeItem = createAsyncThunk(
   }
 );
 
-export const { increase, decrease } = CartSlice.actions;
+export const {increase, decrease } = CartSlice.actions;
 
 export default CartSlice.reducer;

@@ -1,29 +1,41 @@
-import React, { useMemo, useState } from "react";
+import React, { useState, Suspense, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../reducers/store";
-import {
-  getProducts,
-  selectProducts,
-  filterProducts,
-} from "./features/product/productSlice.ts";
-import Pagination from "./features/pagination/Pagination.tsx";
-import { Link, useNavigate } from "react-router-dom";
-import Search from "./features/search/Search.tsx";
-import useFetch from "../hooks/useFecth.ts";
-import "../styles/product.css";
-import useMemorizedCategories from "../hooks/useMemorizedCategories.tsx";
-import SlideOver from "./features/Modals/SlideOver.tsx";
+import { getProducts,selectProducts, filterProducts,} from "./features/product/productSlice.ts";
+import { Link } from "react-router-dom";
 import { IoFilterSharp } from "react-icons/io5";
+import useFetch from "../hooks/useFecth.ts";
+import useMemorizedCategories from "../hooks/useMemorizedCategories.ts";
+import "../styles/product.css";
+
+// Lazy load components
+const Pagination = React.lazy(() => import("./features/pagination/Pagination.tsx"));
+const Search = React.lazy(() => import("./features/search/Search.tsx"));
+const SlideOver = React.lazy(() => import("./features/Modals/SlideOver.tsx"));
 
 const Products: React.FC = () => {
   const [category, setCategory] = useState<string>("");
-  const [sortFilter,setSortFilter]=useState<boolean>(false);
+  const [sortFilter, setSortFilter] = useState<boolean>(false);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   useFetch(getProducts, []);
   const { products, isLoading, error, allProducts } =
     useSelector(selectProducts);
-  const memorizedcategory = useMemorizedCategories(allProducts);
+
+  const memorizedCategory = useMemorizedCategories(allProducts);
+
+  const handleSearch = useCallback(
+    (query: string) => {
+      dispatch(filterProducts({ searchText: query, category: category }));
+    },
+    [dispatch, category]
+  );
+
+  const handleCategory = useCallback(
+    (query: string) => {
+      setCategory(query);
+      dispatch(filterProducts({ searchText: "", category: query }));
+    },
+    [dispatch]
+  );
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -33,40 +45,29 @@ const Products: React.FC = () => {
     return <div>Error: {error}</div>;
   }
 
-  const handleSearch = (query: string) => {
-    dispatch(filterProducts({ searchText: query, category: category }));
-  };
-
-  const handlecatgeory = (query: string) => {
-    setCategory(query);
-    dispatch(filterProducts({ searchText: "", category: query }));
-  };
-
   return (
     <div className="bg-white">
       <section className="flex justify-center items-center w-full mt-4">
-        <Search
-          onsearch={handleSearch}
-          products={products}
-          categories={memorizedcategory}
-          handlecatgeory={handlecatgeory}
-        />
-       
+        <Suspense fallback={<div>Loading Search...</div>}>
+          <Search
+            onSearch={handleSearch}
+            products={products}
+            categories={memorizedCategory}
+            handleCategory={handleCategory}
+          />
+        </Suspense>
       </section>
-      <section className=" 
-      flex
-      lg:ml-12 
-      lg:justify-start
-      sm:ml-4 justify-center
-      md:ml-6 justify-start
-      gap-2 mt-2
-      cursor-pointer
-      border 
-       
-       items-center" onClick={()=>{setSortFilter(!sortFilter)}}>
-        <IoFilterSharp className="lg:text-3xl md:text-3xl sm:text-xl"/>
+      <section
+        className="flex lg:ml-12 lg:justify-start sm:ml-4 justify-center md:ml-6 gap-2 mt-2 cursor-pointer border items-center"
+        onClick={() => {
+          setSortFilter(!sortFilter);
+        }}
+      >
+        <IoFilterSharp className="lg:text-3xl md:text-3xl sm:text-xl" />
         <p className="lg:text-2xl md:text-3xl sm:text-9xl">Filter</p>
-        <SlideOver open={sortFilter} setOpen={setSortFilter}/>
+        <Suspense fallback={<div>Loading Filter...</div>}>
+          <SlideOver open={sortFilter} setOpen={setSortFilter} />
+        </Suspense>
       </section>
       <div className="px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8 mx-auto">
         <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:gap-x-8">
@@ -76,16 +77,11 @@ const Products: React.FC = () => {
               to={`/products/${product.id}`}
               className="group"
             >
-              <div
-                className="w-full overflow-hidden 
-              bg-gray-200 border
-               imagecontainer"
-              >
+              <div className="w-full overflow-hidden bg-gray-200 border imagecontainer">
                 <img
                   src={product.image}
                   alt={product.title}
-                  className="w-f
-                   h-auto object-cover object-center group-hover:opacity-75"
+                  className="w-full h-auto object-cover object-center group-hover:opacity-75"
                 />
               </div>
               <div className="border p-2">
@@ -100,7 +96,9 @@ const Products: React.FC = () => {
           ))}
         </div>
       </div>
-      <Pagination />
+      <Suspense fallback={<div>Loading Pagination...</div>}>
+        <Pagination />
+      </Suspense>
     </div>
   );
 };

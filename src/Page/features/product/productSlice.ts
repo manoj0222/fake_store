@@ -1,17 +1,16 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
-import { act } from "react";
 import ProductType from "../../../interfaces/ProductType";
 import { RootState } from "../../../reducers/store";
 import { toast } from "react-toastify";
 import { sortBy, sortByRatings } from "../../../util/customSort.ts";
-import { FaceSmileIcon } from "@heroicons/react/24/outline";
+import { paginateProducts } from "../../../util/productReducerHelper.ts";
 
 interface ProductsState {
   allProducts: ProductType[];
   products: ProductType[];
   isLoading: boolean;
-  error: String;
+  error: string;
   page: number;
   itemsPerPage: number;
   isSelectedProduct: ProductType | null;
@@ -47,9 +46,12 @@ const productSlice = createSlice({
   reducers: {
     setPage: (state, action: PayloadAction<number>) => {
       state.page = action.payload;
-      const start = (state.page - 1) * state.itemsPerPage;
-      const end = start + state.itemsPerPage;
-      state.products = state.filteredProducts.slice(start, end);
+      state.page = action.payload;
+      state.products = paginateProducts(
+        state.filteredProducts,
+        state.page,
+        state.itemsPerPage
+      );
     },
     onsucess: (state) => {
       toast.success("Added Cart");
@@ -76,7 +78,6 @@ const productSlice = createSlice({
             .toLowerCase()
             .includes(state.selectedCategory.toLowerCase())
         );
-        state.unSortedProducts = state.filteredProducts;
       } else if (state.searchText !== "" && state.selectedCategory === "") {
         state.filteredProducts = state.allProducts.filter(
           (product) =>
@@ -87,22 +88,21 @@ const productSlice = createSlice({
               .toLowerCase()
               .includes(state.searchText.toLowerCase())
         );
-        state.unSortedProducts = state.filteredProducts;
       } else if (state.selectedCategory !== "" && state.searchText === "") {
         state.filteredProducts = state.allProducts.filter((product) =>
           product.category
             .toLowerCase()
             .includes(state.selectedCategory.toLowerCase())
         );
-        state.unSortedProducts = state.filteredProducts;
       } else {
         state.filteredProducts = state.allProducts;
-        state.unSortedProducts = state.filteredProducts;
       }
-
-      const start = (state.page - 1) * state.itemsPerPage;
-      const end = start + state.itemsPerPage;
-      state.products = state.filteredProducts.slice(start, end);
+      state.unSortedProducts = state.filteredProducts;
+      state.products = paginateProducts(
+        state.filteredProducts,
+        state.page,
+        state.itemsPerPage
+      );
     },
     sortByLowToHigh: (state) => {
       state.sortBypriceLowtoHighFlag = !state.sortBypriceLowtoHighFlag;
@@ -111,19 +111,16 @@ const productSlice = createSlice({
           sortBy("price", -1)
         );
       } else if (state.sortByratingFlag) {
-        state.filteredProducts = state.filteredProducts.sort(
+        state.filteredProducts = state.unSortedProducts.sort(
           sortByRatings("rating")
         );
       } else {
         console.log("Inside the Block");
         state.filteredProducts = state.unSortedProducts;
       }
-      const start = (state.page - 1) * state.itemsPerPage;
-      const end = start + state.itemsPerPage;
-      state.products = state.filteredProducts.slice(start, end);
+      state.products = paginateProducts(state.filteredProducts,state.page,state.itemsPerPage);
       state.sortBypriceHightoLowfilterFlag = false;
     },
-
     sortByHighToLow: (state) => {
       state.sortBypriceHightoLowfilterFlag =
         !state.sortBypriceHightoLowfilterFlag;
@@ -131,18 +128,17 @@ const productSlice = createSlice({
         state.filteredProducts = state.filteredProducts.sort(
           sortBy("price", 1)
         ); // Assuming `sortBy` handles the sort order with a second parameter
-      } else if (state.sortByratingFlag) {
+      }
+      else if (state.sortByratingFlag) {
         // Assuming there's a flag for sorting by rating
-        state.filteredProducts = state.filteredProducts.sort(
+        state.filteredProducts = state.unSortedProducts.sort(
           sortByRatings("rating")
         );
       } else {
         console.log("Inside this");
         state.filteredProducts = state.unSortedProducts;
       }
-      const start = (state.page - 1) * state.itemsPerPage;
-      const end = start + state.itemsPerPage;
-      state.products = state.filteredProducts.slice(start, end);
+      state.products = paginateProducts(state.filteredProducts,state.page,state.itemsPerPage);
       state.sortBypriceLowtoHighFlag = false;
     },
     sortByRating: (state) => {
@@ -151,18 +147,29 @@ const productSlice = createSlice({
         state.filteredProducts = state.filteredProducts
           .sort(sortByRatings("rating"))
           .map((e) => e);
-      } else {
+      } 
+      else if(state.sortBypriceHightoLowfilterFlag){
+        state.filteredProducts = state.filteredProducts.sort(
+          sortBy("price", 1)
+        );
+      }
+      else if(state.sortBypriceLowtoHighFlag){
+        state.filteredProducts = state.filteredProducts.sort(
+          sortBy("price", -1)
+        );
+      }
+      else {
         state.filteredProducts = state.unSortedProducts;
       }
-      const start = (state.page - 1) * state.itemsPerPage;
-      const end = start + state.itemsPerPage;
-      state.products = state.filteredProducts.slice(start, end);
+      state.products = paginateProducts(
+        state.filteredProducts,
+        state.page,
+        state.itemsPerPage
+      );
     },
     resetAll: (state) => {
       state.filteredProducts = state.unSortedProducts;
-      const start = (state.page - 1) * state.itemsPerPage;
-      const end = start + state.itemsPerPage;
-      state.products = state.filteredProducts.slice(start, end);
+      state.products = paginateProducts(state.filteredProducts,state.page,state.itemsPerPage);
       state.sortBypriceHightoLowfilterFlag = false;
       state.sortBypriceLowtoHighFlag = false;
       state.sortByratingFlag = false;
@@ -178,9 +185,7 @@ const productSlice = createSlice({
         state.allProducts = action.payload;
         state.filteredProducts = action.payload;
         state.unSortedProducts = action.payload;
-        const start = (state.page - 1) * state.itemsPerPage;
-        const end = start + state.itemsPerPage;
-        state.products = state.allProducts.slice(start, end);
+        state.products = paginateProducts(state.allProducts,state.page, state.itemsPerPage);
       })
       .addCase(getProducts.rejected, (state, action) => {
         state.isLoading = false;

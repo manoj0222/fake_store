@@ -4,27 +4,27 @@ import "../../../styles/search.css";
 
 
 type SearchProps = {
-  onsearch: (query: string) => void;
+  onSearch: (query: string) => void;
   products: ProductType[];
   categories: string[];
-  handlecatgeory: (query: string) => void;
+  handleCategory: (query: string) => void;
 };
 
 const Search: React.FC<SearchProps> = ({
-  onsearch,
+  onSearch,
   products,
   categories,
-  handlecatgeory,
+  handleCategory,
 }) => {
   const [searchContent, setSearchContent] = useState<string>("");
 
   const handleSearch = (value:string) => {
     setSearchContent(value)
-    onsearch(value);
+    onSearch(value);
   };
 
   const handleSelectedCategory = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    handlecatgeory(e.target.value);
+    handleCategory(e.target.value);
   };
 
   return (

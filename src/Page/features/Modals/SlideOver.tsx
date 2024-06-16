@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import React from "react";
 import {
   Dialog,
   DialogPanel,
@@ -7,7 +7,7 @@ import {
   TransitionChild,
 } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import SortFilters from "../sortfilters/SortFilters.tsx";
+import SortFilters from "../sortfilters/SortFilters";
 
 type Props = {
   open: boolean;

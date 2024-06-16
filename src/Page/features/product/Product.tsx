@@ -1,14 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../../reducers/store.ts";
-import { getProductById, onsucess } from "./productSlice.ts";
+import { RootState } from "../../../reducers/store";
+import { getProductById, onsucess } from "./productSlice";
 import { StarIcon } from "@heroicons/react/20/solid";
 import { PiTagFill } from "react-icons/pi";
-import { AppDispatch } from "../../../reducers/store.ts";
+import { AppDispatch } from "../../../reducers/store";
 import { BiTagAlt } from "react-icons/bi";
-import { addToCart } from "../cart/cartSlice.ts";
-import CartType from "../../../interfaces/CartType.ts";
+import { addToCart } from "../cart/cartSlice";
+import CartType from "../../../interfaces/CartType";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -113,19 +113,19 @@ const ProductDetails: React.FC = () => {
                   <div className="flex items-center">
                     {[1, 2, 3, 4, 5].map((rating) => (
                       <StarIcon
-                        key={rating}
-                        className={memoizedClassNames(
-                          isSelectedProduct.rating.rate > rating
-                            ? "text-gray-900"
-                            : "text-gray-200",
-                          "h-5 w-5 flex-shrink-0"
-                        )}
-                        aria-hidden="true"
-                      />
+                      key={rating}
+                      className={memoizedClassNames(
+                        (isSelectedProduct?.rating?.rate ?? 0) > rating
+                          ? "text-gray-900"
+                          : "text-gray-200",
+                        "h-5 w-5 flex-shrink-0"
+                      )}
+                      aria-hidden="true"
+                    />
                     ))}
                   </div>
                   <p className="ml-3 text-indigo-500/60">
-                    {isSelectedProduct.rating.count} Reviews
+                    {isSelectedProduct?.rating?.count??0} Reviews
                   </p>
                 </div>
               </div>
@@ -145,7 +145,7 @@ const ProductDetails: React.FC = () => {
               <p className="text-start text-xl font-semibold">Category</p>
               <p className="flex align-items ">
                 <BiTagAlt className="text-2xl" />
-                {isSelectedProduct.category.toUpperCase()}
+                {isSelectedProduct.category?.toUpperCase()}
               </p>
             </div>
             <button

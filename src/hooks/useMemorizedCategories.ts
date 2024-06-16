@@ -1,19 +1,35 @@
-import { useMemo } from "react";
 import ProductType from "../interfaces/ProductType";
+import { useMemo } from "react";
 
-const useMemorizedCategories = (products:ProductType[]) => {
-
-  const categories = (prdts:ProductType[]):string[] => {
-    let category = [];
-    for (let i = 0; i < prdts.length; i++) {
-      if (category.indexOf(prdts[i].category) === -1) {
-        category.push(prdts[i].category);
+/**
+ * Custom hook that memoizes and returns unique categories from a list of products.
+ * @param products Array of ProductType objects containing products with categories.
+ * @returns Array of unique category strings derived from the provided products.
+ */
+const useMemorizedCategories = (products: ProductType[]) => {
+  /**
+   * Function to extract unique categories from products array.
+   * @param products Array of ProductType objects containing products with categories.
+   * @returns Array of unique category strings.
+   */
+  const categories = (products: ProductType[]): string[] => {
+    let category: string[] = [];
+    for (let i = 0; i < products.length; i++) {
+      const currentCategory = products[i].category as string | undefined;
+      if (
+        currentCategory &&
+        currentCategory.trim() !== "" &&
+        category.indexOf(currentCategory) === -1
+      ) {
+        category.push(currentCategory);
       }
     }
     return category;
   };
 
-  const memorizedCategory = useMemo(()=>categories(products),[products]);
+  // Memoize the categories function with useMemo to optimize performance
+  const memorizedCategory = useMemo(() => categories(products), [products]);
+
   return memorizedCategory;
 };
 

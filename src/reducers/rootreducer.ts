@@ -1,7 +1,7 @@
 import { combineReducers } from "redux";
-import productReducer from "../Page/features/product/productSlice.ts"; // Remove file extension
-import cartReducer from "../Page/features/cart/cartSlice.ts";
-import feedbackSlice from "../Page/features/feeback/feedbackSlice.ts";
+import productReducer from "../Page/features/product/productSlice"; // Remove file extension
+import cartReducer from "../Page/features/cart/cartSlice";
+import feedbackSlice from "../Page/features/feeback/feedbackSlice";
 
 const rootReducers = combineReducers({
       product:productReducer,

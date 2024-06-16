@@ -1,4 +1,4 @@
-import Cart from "../Page/Cart";
+
 import CartType from "./CartType";
 
 interface CartState {

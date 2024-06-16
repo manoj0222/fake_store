@@ -1,14 +1,15 @@
 import React, { Suspense, useCallback, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import {fetchAllCartProducts,increaseQuantity,decreaseQuantity, removeItem,} from "./features/cart/cartSlice.ts";
-import useFetch from "../hooks/useFecth.ts";
-import { AppDispatch, RootState } from "../reducers/store.ts";
+import {fetchAllCartProducts,increaseQuantity,decreaseQuantity, removeItem,} from "./features/cart/cartSlice";
+import useFetch from "../hooks/useFecth";
+import { AppDispatch, RootState } from "../reducers/store";
 import { ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { saveFeedBack } from "./features/feeback/feedbackSlice.ts";
-import CartIsEmpty from "../components/CartIsEmpty.tsx";
+import { saveFeedback } from "./features/feeback/feedbackSlice";
+import CartIsEmpty from "../components/CartIsEmpty";
+import CartState from "../interfaces/CartState";
 
-const LazyUserFeedBackModal = React.lazy(() => import("./features/Modals/UserfeedbackModal.tsx"));
+const LazyUserFeedBackModal = React.lazy(() => import("./features/Modals/UserfeedbackModal"));
 
 export default function Cart() {
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ export default function Cart() {
 
   useFetch(fetchAllCartProducts, []);
   const { cartproducts, isLoading, error, total } = useSelector(
-    (state: RootState) => state.cart
+    (state: RootState) => state.cart as CartState 
   );
   const dispatch = useDispatch<AppDispatch>();
 
@@ -44,12 +45,12 @@ export default function Cart() {
   };
 
   const handleuserFeedback = () => {
-    dispatch(saveFeedBack({ description: feedbacktext, experience: 0 }));
+    dispatch(saveFeedback({ description: feedbacktext, experience: 0 }));
     setOpen(false);
     memoizedhandleonClickShopping();
   };
 
-  const handelfeedbackText = (value) => {
+  const handelfeedbackText = (value:string) => {
     setfeedback(value);
   };
 

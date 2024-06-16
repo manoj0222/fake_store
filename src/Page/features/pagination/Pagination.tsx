@@ -1,7 +1,7 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../reducers/store";
-import { setPage } from "../product/productSlice.ts";
+import { setPage } from "../product/productSlice";
 
 const Pagination: React.FC = () => {
   const dispatch = useDispatch();

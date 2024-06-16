@@ -1,34 +1,41 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import FeebackType from "../../../interfaces/FeebackType";
-import { PayloadAction } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import FeedbackType from "../../../interfaces/FeebackType"
 import { toast } from "react-toastify";
 
-const initialState: FeebackType = {
+// Initial state for the feedback slice
+const initialState: FeedbackType = {
   description: "",
   experience: 0,
 };
 
-const feebackSlice = createSlice({
+// Slice for managing feedback state and actions
+const feedbackSlice = createSlice({
   name: "feedback",
   initialState,
   reducers: {},
+  // Extra reducer for handling asynchronous action with createAsyncThunk
   extraReducers(builder) {
-    builder.addCase(saveFeedBack.fulfilled, (state, action) => {
+    builder
+      // Save feedback fulfilled action
+      .addCase(saveFeedback.fulfilled, (state, action: PayloadAction<FeedbackType>) => {
         toast.success("Thanks for the Feedback");
-      })
+        // No state change needed for feedback slice since feedback is saved to localStorage
+      });
   },
 });
 
-export const saveFeedBack = createAsyncThunk(
+// Async thunk to save feedback
+export const saveFeedback = createAsyncThunk(
   "save/feedback",
-  async (feeback:FeebackType, { rejectWithValue }) => {
+  async (feedback: FeedbackType, { rejectWithValue }) => {
     try {
-      await localStorage.setItem("feedback", JSON.stringify(feeback));
-      return feeback;
+      await localStorage.setItem("feedback", JSON.stringify(feedback));
+      return feedback;
     } catch (error) {
       return rejectWithValue((error as Error).message);
     }
   }
 );
 
-export default feebackSlice.reducer;
+// Exporting default reducer for feedback slice
+export default feedbackSlice.reducer;

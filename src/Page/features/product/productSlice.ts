@@ -1,28 +1,28 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 import ProductType from "../../../interfaces/ProductType";
-import { RootState } from "../../../reducers/store";
+import { RootState } from "src/reducers/store";
 import { toast } from "react-toastify";
-import { sortBy, sortByRatings } from "../../../util/customSort.ts";
-import { paginateProducts } from "../../../util/productReducerHelper.ts";
+import { sortBy, sortByRatings } from "../../../util/customSort";
+import { paginateProducts } from "../../../util/productReducerHelper";
 
-interface ProductsState {
-  allProducts: ProductType[];
-  products: ProductType[];
-  isLoading: boolean;
-  error: string;
-  page: number;
-  itemsPerPage: number;
-  isSelectedProduct: ProductType | null;
-  filteredProducts: ProductType[];
-  searchText: string | null;
-  selectedCategory: string | null;
-  unSortedProducts: ProductType[] | null;
-  sortBypriceHightoLowfilterFlag: boolean;
-  sortBypriceLowtoHighFlag: boolean;
-  sortByratingFlag: boolean;
+// Define the state structure for products slice
+export interface ProductsState {
+  allProducts: ProductType[]; // Array of all products fetched
+  products: ProductType[]; // Array of products to display based on pagination and filters
+  isLoading: boolean; // Loading indicator
+  error: string; // Error message if any
+  page: number; // Current page number for pagination
+  itemsPerPage: number; // Number of items per page
+  isSelectedProduct: ProductType | null; // Currently selected product
+  filteredProducts: ProductType[]; // Array of products after applying filters
+  searchText: string | null; // Text for searching products by name or description
+  selectedCategory: string | null; // Selected category for filtering products
+  unSortedProducts: ProductType[] | []; // Unsorted products as fetched from API
+  sortBypriceHightoLowfilterFlag: boolean; // Flag for sorting by price high to low
+  sortBypriceLowtoHighFlag: boolean; // Flag for sorting by price low to high
+  sortByratingFlag: boolean; // Flag for sorting by rating
 }
-
 const initialState: ProductsState = {
   allProducts: [],
   products: [],
@@ -68,31 +68,31 @@ const productSlice = createSlice({
           (product) =>
             product.title
               .toLowerCase()
-              .includes(state.searchText.toLowerCase()) ||
+              .includes(state.searchText!.toLowerCase()) ||
             product.description
               .toLowerCase()
-              .includes(state.searchText.toLowerCase())
+              .includes(state.searchText!.toLowerCase())
         );
         state.filteredProducts = state.filteredProducts.filter((product) =>
-          product.category
+          product.category??""
             .toLowerCase()
-            .includes(state.selectedCategory.toLowerCase())
+            .includes(state.selectedCategory!.toLowerCase())
         );
       } else if (state.searchText !== "" && state.selectedCategory === "") {
         state.filteredProducts = state.allProducts.filter(
           (product) =>
             product.title
               .toLowerCase()
-              .includes(state.searchText.toLowerCase()) ||
+              .includes(state.searchText!.toLowerCase()) ||
             product.description
               .toLowerCase()
-              .includes(state.searchText.toLowerCase())
+              .includes(state.searchText!.toLowerCase())
         );
       } else if (state.selectedCategory !== "" && state.searchText === "") {
         state.filteredProducts = state.allProducts.filter((product) =>
-          product.category
+          product.category??""
             .toLowerCase()
-            .includes(state.selectedCategory.toLowerCase())
+            .includes(state.selectedCategory!.toLowerCase())
         );
       } else {
         state.filteredProducts = state.allProducts;
@@ -115,7 +115,7 @@ const productSlice = createSlice({
           sortByRatings("rating")
         );
       } else {
-        console.log("Inside the Block");
+
         state.filteredProducts = state.unSortedProducts;
       }
       state.products = paginateProducts(state.filteredProducts,state.page,state.itemsPerPage);

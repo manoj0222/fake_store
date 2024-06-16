@@ -1,16 +1,16 @@
 import React, { useState, Suspense, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getProducts,selectProducts, filterProducts,} from "./features/product/productSlice.ts";
+import { getProducts,selectProducts, filterProducts,} from "./features/product/productSlice";
 import { Link } from "react-router-dom";
 import { IoFilterSharp } from "react-icons/io5";
-import useFetch from "../hooks/useFecth.ts";
-import useMemorizedCategories from "../hooks/useMemorizedCategories.ts";
+import useFetch from "../hooks/useFecth";
+import useMemorizedCategories from "../hooks/useMemorizedCategories";
 import "../styles/product.css";
 
 // Lazy load components
-const Pagination = React.lazy(() => import("./features/pagination/Pagination.tsx"));
-const Search = React.lazy(() => import("./features/search/Search.tsx"));
-const SlideOver = React.lazy(() => import("./features/Modals/SlideOver.tsx"));
+const Pagination = React.lazy(() => import("./features/pagination/Pagination"));
+const Search = React.lazy(() => import("./features/search/Search"));
+const SlideOver = React.lazy(() => import("./features/Modals/SlideOver"));
 
 const Products: React.FC = () => {
   const [category, setCategory] = useState<string>("");
@@ -58,7 +58,7 @@ const Products: React.FC = () => {
         </Suspense>
       </section>
       <section
-        className="flex lg:ml-12 lg:justify-start sm:ml-4 justify-center md:ml-6 gap-2 mt-2 cursor-pointer border items-center"
+        className="flex lg:ml-12 lg:justify-start sm:ml-4 justify-center md:ml-6 gap-2 mt-2 cursor-pointer  items-center"
         onClick={() => {
           setSortFilter(!sortFilter);
         }}

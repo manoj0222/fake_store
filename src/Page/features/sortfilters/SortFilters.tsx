@@ -1,19 +1,15 @@
-import React, { useState } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import "../../../styles/sortfilter.css";
 import { MdClear } from "react-icons/md";
-import { sortByHighToLow,sortByLowToHigh,sortByRating,resetAll } from "../product/productSlice.ts";
+import { sortByHighToLow,sortByLowToHigh,sortByRating,resetAll } from "../product/productSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { selectProducts } from "../product/productSlice.ts";
+import { selectProducts } from "../product/productSlice";
 
 
 const SortFilters: React.FC = () => {
-  const [isOn, setIsOn] = useState(false);
   const dispatch = useDispatch();
   const {sortBypriceHightoLowfilterFlag,sortBypriceLowtoHighFlag,sortByratingFlag} =useSelector(selectProducts);
-  const [priceLowToHigh, setpriceLowToHigh] = useState(false);
-  const [priceHighToLow, setpriceHighToLow] = useState(false);
-  const [rating, setRating] = useState(false);
 
   const tooglepriceLowToHigh = () => {
     dispatch(sortByLowToHigh())
@@ -28,9 +24,6 @@ const SortFilters: React.FC = () => {
   };
 
   const handleResetall =()=>{
-    setpriceLowToHigh(false);
-    setpriceHighToLow(false);
-    setRating(false);
     dispatch(resetAll())
   }
 

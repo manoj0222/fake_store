@@ -7,8 +7,9 @@ import Product from "./Page/features/product/Product.tsx"
 import Cart from "./Page/Cart.tsx";
 import store from "./reducers/store.ts";
 import { Provider } from 'react-redux';
-import { Suspense, lazy } from 'react';
-const CartLazy = lazy(() => import("./Page/Cart.tsx"))
+import { Suspense } from 'react';
+
+
 
 function App() {
   return (

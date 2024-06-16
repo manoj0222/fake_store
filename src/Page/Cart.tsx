@@ -15,6 +15,7 @@ export default function Cart() {
  const navigate = useNavigate()
 
   useFetch(fetchAllCartProducts,[]);
+  
   const { cartproducts, isLoading, error, total } = useSelector(
     (state: RootState) => state.cart
   );
